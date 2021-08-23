@@ -98,3 +98,65 @@ Se ha seguido una implementación guiada por tests TDD.
 
 [![Diagramas de actividad para la recuperación de anuncios](/docs/diagram_activity.jpg)](/docs/diagram_activity.jpg)
 
+### Iniciar proyecto
+
+#### Instalación con Docker
+
+1. Baja el repositorio
+```shell
+$ git clone https://github.com/imollm/avaibook-test.git 
+```
+2. Situate dentro de la carpeta docker
+```shell
+$ cd avaibook-test/docker/
+```
+3. Levantamos los servicios PHP y DATABASE
+```shell
+$ docker-compose up -d --build
+```
+4. Instalamos dependencias 
+```shell
+$ docker exec -it php composer install
+```
+5. Comprueba que la api funciona
+```shell 
+$ curl -i http://localhost:8081/healthcheck
+```
+6. Guardamos los datos en la base de datos
+```shell
+$ docker exec -it php doctrine:fixtures:load
+```
+
+#### Ejecuta los tests
+
+```shell
+$ docker exec -it php composer test
+```
+
+#### Prueba los Endpoints
+
+```shell 
+curl http://localhost:8081/api/v1/calculate-scores
+```
+```shell 
+curl http://localhost:8081/api/v1/irrelevant-ads
+```
+```shell 
+curl http://localhost:8081/api/v1/quality-ads
+```
+#### Puntuaciones resultantes
+
+```shell
++-------+-------+
+| Ad id | Score |
++-------+-------+
+|     1 |     0 |
+|     2 |    90 |
+|     3 |    20 |
+|     4 |    80 |
+|     5 |    75 |
+|     6 |    50 |
+|     7 |     0 |
+|     8 |    25 |
++-------+-------+
+```
