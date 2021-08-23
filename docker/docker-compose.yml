@@ -1,0 +1,32 @@
+version: "3"
+services:
+  webserver:
+    build: ./php
+    container_name: php
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - ../:/var/www/
+    depends_on:
+      - database
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root.secret
+    command: symfony serve --port=8080
+
+  database:
+    image: mysql:5.7
+    container_name: database
+    restart: always
+    ports:
+      - "6033:3306"
+    volumes:
+      - './mysql/data:/var/lib/mysql'
+      - './mysql/logs:/var/log/mysql'
+      - './mysql/init:/tmp/database'
+    environment:
+      MYSQL_ROOT_PASSWORD: root.secret
+      MYSQL_DATABASE: avaibook
+      MYSQL_USER: avaibook
+      MYSQL_PASSWORD: avaibook.secret
