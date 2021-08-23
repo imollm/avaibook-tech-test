@@ -16,9 +16,6 @@ class CalculateScoresService
 
     public function exec(): array
     {
-        if ($this->adRepository->hasScoresCalculated())
-            return ['message' => 'scores are calculated'];
-
         $ads = $this->adRepository->getAll();
 
         foreach ($ads as $ad) {
@@ -28,7 +25,7 @@ class CalculateScoresService
                 $this->adRepository->updateIrrelevantSince($ad['id']);
         }
 
-        return $this->adRepository->getAll();
+        return ['message' => 'scores are calculated'];
     }
 
     public function calculateScore(array $ad): int
