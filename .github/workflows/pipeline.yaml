@@ -1,0 +1,79 @@
+name: Deploy PHP to Azure Web App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize ]
+
+jobs:
+  avoid_redundancy:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build docker containers
+        run: docker-compose -f docker/docker-compose.yml up -d
+
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Check logs
+        run: docker logs php
+
+      - name: Show env vars
+        run: docker exec php env
+
+      - name: Install dependencies
+        run: docker exec php composer install --no-dev --optimize-autoloader
+
+      - name: Lint YAML files
+        run:
+          docker exec php bin/console lint:yaml --no-interaction config &&
+          docker exec php bin/console lint:yaml --no-interaction config/routes &&
+          docker exec php bin/console lint:yaml --no-interaction config/packages &&
+          docker exec php bin/console lint:yaml --no-interaction config/packages/prod &&
+          docker exec php bin/console lint:yaml --no-interaction config/packages/test
+
+      - name: Lint containers
+        run: docker exec php bin/console lint:container
+
+      - name: Qualitify project
+        run : docker exec php bin/qualitify
+
+      - name: Database migration
+        run: docker exec php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Database seed
+        run: docker exec php bin/console doctrine:fixtures:load --no-interaction
+
+      - name: Run tests
+        run: docker exec php composer test
+
+#  deploy:
+#    needs: ci
+#    name: Continuous Deploy
+#    runs-on: ubuntu-18.04
+#    environment: prod
+#    steps:
+#      - uses: actions/checkout@master
+#
+#      - name: 'Deploy to Azure WebApp'
+#        uses: azure/webapps-deploy@v2
+#        with:
+#          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+#          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+#          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
