@@ -38,7 +38,7 @@ jobs:
         run: docker exec php env
 
       - name: Install dependencies
-        run: docker exec php composer install --no-dev --optimize-autoloader
+        run: docker exec php composer install
 
       - name: Lint YAML files
         run:
