@@ -18,10 +18,10 @@
         "symfony/runtime": "v5.3.4",
         "symfony/serializer": "v5.3.4",
         "symfony/validator": "v5.3.6",
-        "symfony/yaml": "v5.3.6"
+        "symfony/yaml": "v5.3.6",
+        "doctrine/doctrine-fixtures-bundle": "v3.4.0"
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "v3.4.0",
         "fakerphp/faker": "^1.15",
         "phpunit/phpunit": "v9.5.8",
         "symfony/http-client": "v5.3.4",
